@@ -1,0 +1,9 @@
+package rushhour;
+
+public class Solver {
+	
+	public static void solveFromFile(String inputPath, String outputPath) throws Exception {
+		aStar.findPath(inputPath, outputPath);
+	}
+	
+}
