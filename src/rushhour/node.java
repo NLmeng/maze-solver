@@ -1,59 +1,59 @@
 package rushhour;
 
-public class node<T> {
+public class Node<T> {
 	private int h;
 	private int g;
 	private int f;
 	private T current;
 //	private boolean visited;
-	private node<T> parent;
+	private Node<T> parent;
 	
-	public node<T> getParent() {
-		return parent;
+	public Node<T> getParent() {
+		return this.parent;
 	}
 
-	public void setParent(node<T> parent) {
+	public void setParent(Node<T> parent) {
 		this.parent = parent;
 	}
 
 	public int getH() {
-		return h;
+		return this.h;
 	}
 
 	public void setH(int h) {
 		this.h = h;
-		f=g+this.h;
+		this.f=this.g+this.h;
 	}
 
 	public int getG() {
-		return g;
+		return this.g;
 	}
 
 	public void setG(int g) {
 		this.g = g;
-		f=this.g+h;
+		this.f=this.g+this.h;
 	}
 
 	public int getF() {
-		return f;
+		return this.f;
 	}
 
 	public void setF(int f) {
 		this.f = f;
 	}
 
-	public node(T name) {
+	public Node(T name) {
 		this.current = name;
-		hash=computeHash();
+		this.hash=this.computeHash();
 	}
 
 	public void setCurrent(T name) {
 		this.current = name;
-		hash=computeHash();
+		this.hash=this.computeHash();
 	}
 	
 	public T getCurrent() {
-		return current;
+		return this.current;
 	}
 
 //	public void setVisited(boolean flag) {
@@ -66,11 +66,11 @@ public class node<T> {
 	
 	private int hash;
 	private int computeHash() {
-		return 31*((state)current).hashCode();
+		return 31*((State)this.current).hashCode();
 	}
 	@Override
 	public int hashCode() {
-		return hash;
+		return this.hash;
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -78,10 +78,10 @@ public class node<T> {
 		if(this==obj) 
 			return true;
 
-		if (!(obj instanceof node<?>)) 
+		if (!(obj instanceof Node<?>)) 
 			return false;
 		
-		if ((this.hashCode() != ((node<?>)obj).hashCode()))
+		if ((this.hashCode() != ((Node<?>)obj).hashCode()))
 			return false;
 		return true;
 

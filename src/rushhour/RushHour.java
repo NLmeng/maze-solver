@@ -20,24 +20,24 @@ public class RushHour
 	public void printBoard() {
 		for(int i = 0; i < SIZE; i++) {
 			for(int j = 0; j < SIZE; j++)
-				System.out.print(board[i][j]);
+				System.out.print(this.board[i][j]);
 			System.out.println();
 		}
 		System.out.println();
 	}
 	public char[][] getBoard(){
-		return board;
+		return this.board;
 	}
 	public void readInto(char[][] c) throws Exception {
-		vehicles.clear();
+		this.vehicles.clear();
 		for(int i = 0 ; i < SIZE; i++) {
 			for(int j = 0; j < SIZE; j++) {
-				board[i][j] = c[i][j];
-				if(board[i][j] != '.') 
-					vehicles.add(board[i][j], i, j);
+				this.board[i][j] = c[i][j];
+				if(this.board[i][j] != '.') 
+					this.vehicles.add(this.board[i][j], i, j);
 			}
 		}
-		vehicles.format();
+		this.vehicles.format();
 		
 	}
 	//make a series of moves in accordance to a solution file
@@ -67,7 +67,7 @@ public class RushHour
 			l=(int)tokens.charAt(2)-48;
 
 			//printBoard();
-			makeMove(tokens.charAt(0), dir, l);
+			this.makeMove(tokens.charAt(0), dir, l);
 		}
 		in.close();
 		if(this.isSolved()) {
@@ -81,28 +81,28 @@ public class RushHour
 		return;
 	}
 	public RushHour(char[][] c) throws Exception {
-		readInto(c);
+		this.readInto(c);
 	}
-	public state nextState(Vehicle vh, int dr, int ln) {
+	public State nextState(Vehicle vh, int dr, int ln) {
 
-		move(vh, dr, ln);
-		state ret = new state(board);
+		this.move(vh, dr, ln);
+		State ret = new State(this.board);
 		
 		switch(dr) {
 			case UP:
-				move(vh, DOWN, ln);
+				this.move(vh, DOWN, ln);
 				break;
 				
 			case DOWN:
-				move(vh, UP, ln);
+				this.move(vh, UP, ln);
 				break;
 				
 			case LEFT:
-				move(vh, RIGHT, ln);
+				this.move(vh, RIGHT, ln);
 				break;
 				
 			case RIGHT:
-				move(vh, LEFT, ln);
+				this.move(vh, LEFT, ln);
 				break;
 		}
 
@@ -130,13 +130,13 @@ public class RushHour
 				
 			for(int j = 0; j < SIZE; j++) {
 				
-				board[i][j] = data.charAt(j);
-				if(board[i][j] != '.') 
-					vehicles.add(board[i][j], i, j);
+				this.board[i][j] = data.charAt(j);
+				if(this.board[i][j] != '.') 
+					this.vehicles.add(this.board[i][j], i, j);
 			}
 		}
 		read.close();
-		vehicles.format();
+		this.vehicles.format();
 	}
 	/**
 	 * 
@@ -149,9 +149,9 @@ public class RushHour
 	public boolean tryMove(char carName, int dir, int length) throws IllegalMoveException {
 		
 		try {
-			int indexofCar = vehicles.contains(carName);
-			Vehicle cur = vehicles.list.get(indexofCar);
-			validate(cur, dir, length);
+			int indexofCar = this.vehicles.contains(carName);
+			Vehicle cur = this.vehicles.list.get(indexofCar);
+			this.validate(cur, dir, length);
 			return true;
 		} catch(Exception e) {
 			return false;
@@ -169,10 +169,10 @@ public class RushHour
 	public void makeMove(char carName, int dir, int length) throws IllegalMoveException {
 		
 		try {
-			int indexofCar = vehicles.contains(carName);
-			Vehicle cur = vehicles.list.get(indexofCar);
-			validate(cur, dir, length);
-			move(cur, dir, length);
+			int indexofCar = this.vehicles.contains(carName);
+			Vehicle cur = this.vehicles.list.get(indexofCar);
+			this.validate(cur, dir, length);
+			this.move(cur, dir, length);
 		} catch(Exception e) {
 			throw e;
 		}
@@ -197,7 +197,7 @@ public class RushHour
 					throw new IllegalMoveException("Outside Board");
 				uY--;
 				while(ln--!=0) {
-					if(board[uY--][uX]!='.')
+					if(this.board[uY--][uX]!='.')
 						throw new IllegalMoveException("Space Taken");
 				}
 				break;
@@ -209,7 +209,7 @@ public class RushHour
 					throw new IllegalMoveException("Outside Board");
 				dY++;
 				while(ln--!=0) {
-					if(board[dY++][dX]!='.')
+					if(this.board[dY++][dX]!='.')
 						throw new IllegalMoveException("Space Taken");
 				}
 				break;
@@ -221,7 +221,7 @@ public class RushHour
 					throw new IllegalMoveException("Outside Board");
 				lX--;
 				while(ln--!=0) {
-					if(board[lY][lX--]!='.')
+					if(this.board[lY][lX--]!='.')
 						throw new IllegalMoveException("Space Taken");
 				}
 				break;
@@ -233,7 +233,7 @@ public class RushHour
 					throw new IllegalMoveException("Outside Board");
 				rX++;
 				while(ln--!=0) {
-					if(board[rY][rX++]!='.')
+					if(this.board[rY][rX++]!='.')
 						throw new IllegalMoveException("Space Taken");
 				}
 				break;
@@ -249,14 +249,14 @@ public class RushHour
 				
 				switch(dr) {
 					case UP:
-						board[i][j]='.';
-						board[i-ln][j]=vh.name;
+						this.board[i][j]='.';
+						this.board[i-ln][j]=vh.name;
 						vh.coord.get(k).set(0, i-ln);
 						break;
 						
 					case LEFT:
-						board[i][j]='.';
-						board[i][j-ln]=vh.name;
+						this.board[i][j]='.';
+						this.board[i][j-ln]=vh.name;
 						vh.coord.get(k).set(1, j-ln);
 						break;
 				}
@@ -270,14 +270,14 @@ public class RushHour
 				
 				switch(dr) {
 					case DOWN:
-						board[i][j]='.';
-						board[i+ln][j]=vh.name;
+						this.board[i][j]='.';
+						this.board[i+ln][j]=vh.name;
 						vh.coord.get(k).set(0, i+ln);
 						break;
 						
 					case RIGHT:
-						board[i][j]='.';
-						board[i][j+ln]=vh.name;
+						this.board[i][j]='.';
+						this.board[i][j+ln]=vh.name;
 						vh.coord.get(k).set(1, j+ln);
 						break;
 				}
@@ -292,7 +292,7 @@ public class RushHour
 	 * i.e., the XX car is touching the right edge of the board
 	 */
 	public boolean isSolved() {
-		Vehicle goal = vehicles.list.get(vehicles.contains('X'));
+		Vehicle goal = this.vehicles.list.get(this.vehicles.contains('X'));
 		if(goal.coord.get(goal.rightMost()).get(1) == 5) 
 			return true;
 		return false;

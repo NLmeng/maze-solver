@@ -1,62 +1,62 @@
 package rushhour;
 import java.util.*;
 
-public class graph<T>{
+public class Graph<T> {
 	
-	private Set<node<T>> v;
-	private Map<node<T>, Set<node<T>>> e;
+	private Set<Node<T>> v;
+	private Map<Node<T>, Set<Node<T>>> e;
 	
-	public graph() {
-		v = new HashSet<node<T>>();
-		e = new HashMap<node<T>, Set<node<T>>>();
+	public Graph() {
+		this.v = new HashSet<Node<T>>();
+		this.e = new HashMap<Node<T>, Set<Node<T>>>();
 	}
-	public Set<node<T>> getv() {
-		return v;
+	public Set<Node<T>> getv() {
+		return this.v;
 	}
 	
-	public node<T> getnodeByName(T name) {
-		for (node<T> v : v)
+	public Node<T> getNodeByName(T name) {
+		for (Node<T> v : this.v)
 			if (v.getCurrent().equals(name))
 				return v;
 
 		return null;
 	}
 
-	public Set<node<T>> getNeighbours(node<T> v) {
-		return e.get(v);
+	public Set<Node<T>> getNeighbours(Node<T> v) {
+		return this.e.get(v);
 	}
 
-	public boolean addnode(node<T> v) {
+	public boolean addNode(Node<T> v) {
 		boolean newNode = this.v.add(v);
 		if (newNode)
-			e.put(v, new HashSet<node<T>>());
+			this.e.put(v, new HashSet<Node<T>>());
 		return newNode;
 	}
 
-	public boolean addnode(T data) {
-		return addnode(new node<T>(data));
+	public boolean addNode(T data) {
+		return this.addNode(new Node<T>(data));
 	}
 
-	public boolean addEdge(node<T> v, node<T> u) {
+	public boolean addEdge(Node<T> v, Node<T> u) {
 		if (this.v.contains(v) && this.v.contains(u))
-			return (e.get(v).add(u) && e.get(u).add(v)); 
+			return (this.e.get(v).add(u) && this.e.get(u).add(v)); 
 		else
 			return false;
 	}
 
 	public boolean addEdge(T v, T u) {
-		return addEdge(getnodeByName(v), getnodeByName(u));
+		return this.addEdge(this.getNodeByName(v), this.getNodeByName(u));
 	}
 
-	public boolean removeEdge(node<T> v, node<T> u) {
+	public boolean removeEdge(Node<T> v, Node<T> u) {
 		if (this.v.contains(v) && this.v.contains(u))
-			return (e.get(v).remove(u) && e.get(u).remove(v)); 
+			return (this.e.get(v).remove(u) && this.e.get(u).remove(v)); 
 		else
 			return false;
 	}
 	
 //	private void setAllUnvisited() {
-//		for (node<T> v : v) {
+//		for (Node<T> v : v) {
 //			v.setVisited(false);
 //			v.setParent(null);
 //		}

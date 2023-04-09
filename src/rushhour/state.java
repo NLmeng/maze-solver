@@ -3,26 +3,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class state {
+public class State {
 	private char[][] cur;
 	private String step;
 	//constructors
-	state(char[][] c){
-		cur=new char[6][6];
+	State(char[][] c){
+		this.cur=new char[6][6];
 		for(int i = 0; i < 6; i++)
 			for(int j = 0; j < 6; j++) {
-				cur[i][j]=c[i][j];
+				this.cur[i][j]=c[i][j];
 			}
-		hash=computeHash();
+		this.hash=this.computeHash();
 	}
-	state(String fileName) throws Exception {
+	State(String fileName) throws Exception {
 		File file = new File(fileName);
 		if(!file.exists()) 
 			throw new FileNotFoundException("File doesnt exist");
 		
 		Scanner read = new Scanner(file);
 		
-		cur=new char[6][6];
+		this.cur=new char[6][6];
 		for(int i = 0 ; i < 6; i++) {
 			String data = read.nextLine();
 			if(data.length()!=6) {
@@ -31,7 +31,7 @@ public class state {
 			}
 				
 			for(int j = 0; j < 6; j++) {
-				cur[i][j]=data.charAt(j);
+				this.cur[i][j]=data.charAt(j);
 			}
 			
 		}
@@ -39,20 +39,20 @@ public class state {
 	}
 	//store step to the state
 	public void setStep(String s) {
-		step=s;
+		this.step=s;
 	}
 	public String getStep() {
-		return step;
+		return this.step;
 	}
 	//return board
 	public char[][] get() {
-		return cur;
+		return this.cur;
 	}
 	//print board
 	public void display(){
 		for(int i = 0; i < 6; i++) {
 			for(int j = 0; j < 6; j++)
-				System.out.print(cur[i][j]);
+				System.out.print(this.cur[i][j]);
 			System.out.println();
 		}
 		System.out.println();
@@ -60,7 +60,7 @@ public class state {
 	//check if solved
 	public boolean isSolved() {
 		for(int i = 0; i < 6; i++) {
-			if(cur[i][5]=='X') return true;
+			if(this.cur[i][5]=='X') return true;
 		}
 		return false;
 	}
@@ -70,12 +70,12 @@ public class state {
 		int hash = 0;
 	    for (int i = 0; i < 6; i++)
 	        for (int j = 0; j < 6; j++)
-	            hash = (hash) ^ ((int)(Math.pow(31,i)+Math.pow(31,j)) * cur[i][j]);
+	            hash = (hash) ^ ((int)(Math.pow(31,i)+Math.pow(31,j)) * this.cur[i][j]);
 	    return hash;
 	}
 	@Override
 	public int hashCode() {
-		return hash;
+		return this.hash;
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -83,10 +83,10 @@ public class state {
 		if (this == obj) 
 			return true;
 		
-		if (!(obj instanceof state)) 
+		if (!(obj instanceof State)) 
 			return false;
 		
-		if(this.hashCode() != ((state)obj).hashCode()) 
+		if(this.hashCode() != ((State)obj).hashCode()) 
 			return false;
 		return true;
 		

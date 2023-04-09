@@ -4,10 +4,10 @@ package rushhour;
  * @author Lymeng
  *
  */
-public class zeroHeuristic implements heuristic {
+public class ZeroHeuristic implements Heuristic {
 	
 	private int val;
-    public zeroHeuristic(state state) {
+    public ZeroHeuristic(State state) {
     	this.val = 0;
     	return;
     }

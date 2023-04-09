@@ -4,7 +4,7 @@ package rushhour;
  * @author Mengo
  *
  */
-public class myHeuristic implements heuristic {
+public class MyHeuristic implements Heuristic {
 	
 	private int val;
 	/**
@@ -17,7 +17,7 @@ public class myHeuristic implements heuristic {
 	 * @param State
 	 * @throws Exception
 	 */
-	public myHeuristic(state State) throws Exception {
+	public MyHeuristic(State State) throws Exception {
 		char[][] b = State.get();
 		
 		//number of cars blocking red-car, and cars blocking those:
@@ -29,7 +29,7 @@ public class myHeuristic implements heuristic {
 		for(int i = 0; i < 6; i++) {
 			//solved
 			if(b[i][5]=='X') {
-				val = 0;
+				this.val = 0;
 				return;
 			}
 			
@@ -68,7 +68,7 @@ public class myHeuristic implements heuristic {
 				break;
 		}
 		
-		val=curBlock+fromExit;
+		this.val=curBlock+fromExit;
 		
 		//weighted average
 		//val=(curBlock+fromExit)/2;
@@ -80,6 +80,6 @@ public class myHeuristic implements heuristic {
      * Returns the value of the heuristic
      */
     public int getValue() {
-    	return val;
+    	return this.val;
     }
 }

@@ -1,10 +1,10 @@
 package rushhour;
 /**
  * interface for heuristics
- * @author Mengo
+ * @author Lymeng
  *
  */
-public interface heuristic {
+public interface Heuristic {
 
     public int getValue();
     
