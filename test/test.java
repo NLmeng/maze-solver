@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.util.Scanner;
 import rushhour.*;
@@ -49,14 +48,12 @@ public class test
 		for(int t = 0; t < 1; t++) {
 		long start=System.nanoTime();
 
-		System.out.println("Working Directory = " + System.getProperty("user.dir"));
-
-//		Solver.solveFromFile(puzzleName, "sol-"+puzzleName);
-		
+		// System.out.println("Working Directory = " + System.getProperty("user.dir"));
+		// Solver.solveFromFile(puzzleName, "sol-"+puzzleName);
 		
 		for(int i = 0; i <= 10; i++) {
-			String inA = "A";
-			String outA = "A";
+			String inA = "test/test_files/A";
+			String outA = "test/test_files/A";
 			if(i<10) {
 				inA += "0" + i +".txt";
 				outA += "0" + i +".sol";
@@ -69,8 +66,8 @@ public class test
 		
 		
 		for(int i = 11; i <= 20; i++) {
-			String inB = "B";
-			String outB = "B";
+			String inB = "test/test_files/B";
+			String outB = "test/test_files/B";
 		
 			inB += i +".txt";
 			outB += i +".sol";
@@ -80,8 +77,8 @@ public class test
 		
 		
 		for(int i = 21; i <= 29; i++) {
-			String inC = "C";
-			String outC = "C";
+			String inC = "test/test_files/C";
+			String outC = "test/test_files/C";
 		
 			inC += i +".txt";
 			outC += i +".sol";
@@ -91,8 +88,8 @@ public class test
 		
 		
 		for(int i = 30; i <= 35; i++) {
-			String inD = "D";
-			String outD = "D";
+			String inD = "test/test_files/D";
+			String outD = "test/test_files/D";
 		
 			inD += i +".txt";
 			outD += i +".sol";
@@ -113,8 +110,8 @@ public class test
 		
 		RushHour g;
 		for(int i = 0; i <= 10; i++) {
-			String inA = "A";
-			String outA = "A";
+			String inA = "test/test_files/A";
+			String outA = "test/test_files/A";
 			if(i<10) {
 				inA += "0" + i +".txt";
 				outA += "0" + i +".sol";
@@ -128,8 +125,8 @@ public class test
 		
 		
 		for(int i = 11; i <= 20; i++) {
-			String inB = "B";
-			String outB = "B";
+			String inB = "test/test_files/B";
+			String outB = "test/test_files/B";
 		
 			inB += i +".txt";
 			outB += i +".sol";
@@ -140,8 +137,8 @@ public class test
 		
 		
 		for(int i = 21; i <= 29; i++) {
-			String inC = "C";
-			String outC = "C";
+			String inC = "test/test_files/C";
+			String outC = "test/test_files/C";
 		
 			inC += i +".txt";
 			outC += i +".sol";
@@ -152,8 +149,8 @@ public class test
 		
 		
 		for(int i = 30; i <= 35; i++) {
-			String inD = "D";
-			String outD = "D";
+			String inD = "test/test_files/D";
+			String outD = "test/test_files/D";
 		
 			inD += i +".txt";
 			outD += i +".sol";
@@ -164,7 +161,7 @@ public class test
 //		g=new RushHour("hdest.txt");
 //		g.testSol("hdest.sol");
 
-		testSolution("D35.txt", "D35.sol");
+		// testSolution("D35.txt", "D35.sol");
 
 		long stop=System.nanoTime();
 		long tt = stop-start;

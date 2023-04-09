@@ -1,19 +1,19 @@
 package rushhour;
 /**
  * Assume heuristic value is always zero
- * @author Mengo
+ * @author Lymeng
  *
  */
 public class zeroHeuristic implements heuristic {
 	
 	private int val;
     public zeroHeuristic(state state) {
-    	val = 0;
+    	this.val = 0;
     	return;
     }
 
     public int getValue() {
-    	return val;
+    	return this.val;
     }
 
 }
