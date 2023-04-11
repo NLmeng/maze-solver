@@ -56,7 +56,8 @@ public class LevelWindow extends JFrame implements ActionListener {
         for (int i = 0; i < 5; i++) {
             if (e.getSource() == this.lvl[i]) {
                 this.dispose();
-                new GUI("./data/lvl" + (i + 1) + ".json");
+                // new GUI("./data/lvl" + (i + 1) + ".json");
+                new GUI("./data/lvlA/A00.json");
             }
         }
     }
