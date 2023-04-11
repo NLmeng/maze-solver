@@ -7,7 +7,7 @@ javac -cp "src:lib/json-20210307.jar" -d bin src/gui/model/*.java src/gui/persis
 # Run the test class
 # java -cp "bin:test" test
 # Run the GUI
-java -cp "bin:lib/json-20210307.jar" ui/Main
+java -cp "bin:lib/json-20210307.jar" gui/ui/Main
 
 # For Unix-based systems (Linux or macOS):
     # Make the run.sh file executable:

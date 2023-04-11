@@ -1,18 +1,37 @@
 package gui.ui;
 
-import gui.model.*;
-import gui.model.Event;
-import gui.persistence.JsonReader;
-import gui.persistence.JsonWriter;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Random;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+
+import gui.model.Block;
+import gui.model.Board;
+import gui.model.Event;
+import gui.model.EventLog;
+import gui.model.Horiblock;
+import gui.model.Vertblock;
+import gui.persistence.JsonReader;
+import gui.persistence.JsonWriter;
+
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import java.util.HashMap;
+
 
 public class GUI extends JFrame implements ActionListener {
     private int size;
@@ -33,36 +52,53 @@ public class GUI extends JFrame implements ActionListener {
     private JButton btnforSave;
     private JButton btnforLoad;
     private Board brd;
-//    private static final String JSON_STORE = "./data/savedBoard.json";
+    // private static final String JSON_STORE = "./data/savedBoard.json";
     private String jsonName = "./data/savedBoard.json";
     private JsonWriter jsonWriter;
     private JsonReader jsonReader;
+    private HashMap<Integer, Color> blockColors = new HashMap<>();
+
 
     // MODIFIES: this
-    // EFFECTS: create Board with the given size, set up JFrame with panels and buttons
+    // EFFECTS: create Board with the given size, set up JFrame with panels and
+    // buttons
     public GUI(int size) {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        } catch (UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        
         this.size = size;
         this.initDefault();
         this.loadBoard();
-//        colorBoard();
+        this.colorBoard();
         this.setVisible(true);
     }
 
     // MODIFIES: this
-    // EFFECTS: create Board with size 2 then load the save, set up JFrame with panels and buttons
+    // EFFECTS: create Board with size 2 then load the save, set up JFrame with
+    // panels and buttons
     public GUI(String s) {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        } catch (UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        
         this.size = 2;
         this.jsonName = s;
         this.initDefault();
         this.loadBoard();
         this.loadGame();
-//        colorBoard();
+        this.colorBoard();
         this.setVisible(true);
     }
 
     // MODIFIES: this
-    // EFFECTS: set the title, color, size of JFrame, then initialize Board, buttons, jsonWriter, and jsonReader
-    //          then add titlePanel, boardPanel, and buttonPanel
+    // EFFECTS: set the title, color, size of JFrame, then initialize Board,
+    // buttons, jsonWriter, and jsonReader
+    // then add titlePanel, boardPanel, and buttonPanel
     private void initDefault() {
         this.setTitle("BLOCKSLIDER");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -99,7 +135,8 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     // MODIFIES: this
-    // EFFECTS: create and add titlePanel, set the title, font, colors, and alignment
+    // EFFECTS: create and add titlePanel, set the title, font, colors, and
+    // alignment
     private void createTitle() {
         JPanel titlePanel = new JPanel();
         JLabel title = new JLabel("BlockSlider");
@@ -142,17 +179,15 @@ public class GUI extends JFrame implements ActionListener {
                 int ind = this.brd.getCellAt(i, j);
                 JButton b;
                 if (ind == 121) {
-                    b = new JButton(" ");
+                    // b = new JButton(" ");
+                    b = new JButton("");
                 } else if (ind == 120) {
                     b = new JButton("x");
                 } else {
-                    b = new JButton(String.valueOf(ind));
+                    // b = new JButton(String.valueOf(ind));
+                    b = new JButton("");
                 }
-                if (i == this.size / 2 && j == this.size - 1) {
-                    b.setBackground(Color.decode("#BA6366"));
-                } else {
-                    b.setBackground(Color.decode("#BA8C63"));
-                }
+                
                 b.setForeground(Color.decode("#4c0000"));
                 b.setFocusable(false);
                 b.addActionListener(this);
@@ -168,15 +203,15 @@ public class GUI extends JFrame implements ActionListener {
         Block b;
         int row1;
         int col1;
-        System.out.println(this.brd.numberofBlocks());
-        for (int i = 1; i < this.brd.numberofBlocks(); i++) {
+        // System.out.println(this.brd.numberofBlocks());
+        for (int i = 0; i < this.brd.numberofBlocks(); i++) {
             b = this.brd.getBlockAt(i);
             row1 = b.getRowNumber();
             col1 = b.getColumnNumber();
             if (b.isVertical()) {
-                this.changeColor(row1, col1, row1 + 1, col1);
+                this.setColor(row1, col1, row1 + 1, col1);
             } else {
-                this.changeColor(row1, col1, row1, col1 + 1);
+                this.setColor(row1, col1, row1, col1 + 1);
             }
         }
     }
@@ -234,9 +269,8 @@ public class GUI extends JFrame implements ActionListener {
         this.tryActions(clicked, curr);
     }
 
-
     // EFFECTS: save the state of the game (blocks) to file
-    //          handles FileNotFoundException
+    // handles FileNotFoundException
     private void saveGame() {
         try {
             this.jsonWriter.open();
@@ -244,29 +278,30 @@ public class GUI extends JFrame implements ActionListener {
             this.jsonWriter.close();
             System.out.println("Saved game!");
         } catch (FileNotFoundException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             System.out.println("Save file could not be found! Game not saved!");
         }
     }
 
     // MODIFIES: this
     // EFFECTS: loads the saved state from file
-    //          handles IOException
+    // handles IOException
     private void loadGame() {
         try {
             this.brd = this.jsonReader.read();
             this.reload();
             System.out.println("Loaded from " + this.jsonName);
         } catch (IOException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
             System.out.println("Unable to read from file: " + this.jsonName);
         }
     }
 
     // MODIFIES: this
-    // EFFECTS: if pressed create new button then create new Blocks onto the board if valid
-    //          if pressed remove button then remove the block at the clicked location
-    //          if pressed on an existing block then prepare to move otherwise move if valid
+    // EFFECTS: if pressed create new button then create new Blocks onto the board
+    // if valid
+    // if pressed remove button then remove the block at the clicked location
+    // if pressed on an existing block then prepare to move otherwise move if valid
     private void tryActions(JButton jb, byte curr) {
         if (this.toCreate) {
             this.trytoCreate(jb, curr);
@@ -292,8 +327,9 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     // MODIFIES: this
-    // EFFECTS: After create new button is pressed, if an empty and valid location is pressed
-    //          then create a new block there
+    // EFFECTS: After create new button is pressed, if an empty and valid location
+    // is pressed
+    // then create a new block there
     private void trytoCreate(JButton jb, byte curr) {
         Block nxt;
         if (curr == 'y') {
@@ -303,11 +339,13 @@ public class GUI extends JFrame implements ActionListener {
                 nxt = new Horiblock(this.currRow, this.currColumn, this.startInd);
             }
             if (this.brd.insertBlock(nxt)) {
-                jb.setText(String.valueOf(this.startInd));
+                // jb.setText(String.valueOf(this.startInd));
                 if (this.isVert) {
-                    this.btn[this.currRow + 1][this.currColumn].setText(String.valueOf(this.startInd));
+                    // this.btn[this.currRow + 1][this.currColumn].setText(String.valueOf(this.startInd));
+                    this.setColor(this.currRow, this.currColumn, this.currRow + 1, this.currColumn);
                 } else {
-                    this.btn[this.currRow][this.currColumn + 1].setText(String.valueOf(this.startInd));
+                    // this.btn[this.currRow][this.currColumn + 1].setText(String.valueOf(this.startInd));
+                    this.setColor(this.currRow, this.currColumn, this.currRow, this.currColumn + 1);
                 }
                 this.startInd++;
             }
@@ -320,7 +358,7 @@ public class GUI extends JFrame implements ActionListener {
 
     // MODIFIES: this
     // EFFECTS: After remove button is pressed, if an existing block is pressed
-    //          then remove the existing block and relevel the other blocks
+    // then remove the existing block and relevel the other blocks
     private void trytoRemove(byte curr) {
         if (curr != 'x' && curr != 'y') {
             this.blockInd = curr;
@@ -329,11 +367,15 @@ public class GUI extends JFrame implements ActionListener {
             int col = currB.getColumnNumber();
             this.isVert = currB.isVertical();
             if (this.brd.removeBlock(this.blockInd)) {
-                this.btn[row][col].setText(" ");
+                // this.btn[row][col].setText(" ");
                 if (this.isVert) {
-                    this.btn[row + 1][col].setText(" ");
+                    // this.btn[row + 1][col].setText(" ");
+                    this.btn[row + 1][col].setBackground(null);
+                    this.btn[row][col].setBackground(null);
                 } else {
-                    this.btn[row][col + 1].setText(" ");
+                    // this.btn[row][col + 1].setText(" ");
+                    this.btn[row][col].setBackground(null);
+                    this.btn[row][col + 1].setBackground(null);
                 }
                 this.startInd--;
                 this.relevel(this.blockInd, this.startInd);
@@ -353,21 +395,22 @@ public class GUI extends JFrame implements ActionListener {
             int row = currB.getRowNumber();
             int col = currB.getColumnNumber();
 
-            this.btn[row][col].setText(String.valueOf(i));
+            // this.btn[row][col].setText(String.valueOf(i));
             this.brd.setCellAt(row, col, (byte) i);
             if (currB.isVertical()) {
-                this.btn[row + 1][col].setText(String.valueOf(i));
+                // this.btn[row + 1][col].setText(String.valueOf(i));
                 this.brd.setCellAt(row + 1, col, (byte) i);
             } else {
-                this.btn[row][col + 1].setText(String.valueOf(i));
+                // this.btn[row][col + 1].setText(String.valueOf(i));
                 this.brd.setCellAt(row, col + 1, (byte) i);
             }
         }
     }
 
     // MODIFIES: this
-    // EFFECTS: After an exisiting block is pressed, if a valid position next to it is pressed
-    //          then move the block there
+    // EFFECTS: After an exisiting block is pressed, if a valid position next to it
+    // is pressed
+    // then move the block there
     private void trytoMove(JButton jb, byte curr) {
         int row = this.blockToMove.getRowNumber();
         int col = this.blockToMove.getColumnNumber();
@@ -396,18 +439,19 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     // MODIFIES: this
-    // EFFECTS: move the vertical block up or down and move the horizontal block left or right
-    //          check if won after each move
+    // EFFECTS: move the vertical block up or down and move the horizontal block
+    // left or right
+    // check if won after each move
     private void move(JButton jb, String dir, int row, int col) {
         int bn = this.blockToMove.getBlockNumber();
         if (bn == 120) {
             jb.setText(String.valueOf((char) bn));
         } else {
-            jb.setText(String.valueOf(bn));
+            // jb.setText(String.valueOf(bn));
         }
-
-//        setColors(row, col, dir);
-
+    
+        this.handleMoveColor(row, col, dir);
+    
         switch (dir) {
             case "u":
                 row += 1;
@@ -416,20 +460,22 @@ public class GUI extends JFrame implements ActionListener {
                 col += 1;
                 break;
         }
-
-        this.btn[row][col].setText(" ");
+    
+        this.btn[row][col].setText("");
         this.btn[row][col].setForeground(Color.decode("#4c0000"));
-
+        this.btn[row][col].setBackground(null); // Add this line to uncolor the button
+    
         this.brd.move(dir, this.blockInd);
-
+    
         if (this.brd.isWon()) {
             this.displayWon();
         }
     }
+    
 
     // MODIFIES: this
     // EFFECTS: change color of the pair of buttons
-    private void setColors(int row, int col, String dir) {
+    private void handleMoveColor(int row, int col, String dir) {
         switch (dir) {
             case "u":
                 this.changeColor(row, col, row - 1, col);
@@ -446,13 +492,41 @@ public class GUI extends JFrame implements ActionListener {
         }
     }
 
-    // MODIFIES: this
-    // EFFECTS: change the pair of buttons that represent a block to the same random color
+    //
+    //
     private void changeColor(int row1, int col1, int row2, int col2) {
-        Color nxt = new Color((int)(Math.random() * 0x1000000));
-        this.btn[row1][col1].setForeground(nxt);
-        this.btn[row2][col2].setForeground(nxt);
+        int blockNumber = this.brd.getCellAt(row1, col1);
+        Color color = this.blockColors.get(blockNumber);
+    
+        this.btn[row1][col1].setOpaque(true);
+        this.btn[row1][col1].setContentAreaFilled(true);
+        this.btn[row2][col2].setOpaque(true);
+        this.btn[row2][col2].setContentAreaFilled(true);
+        this.btn[row1][col1].setBackground(color);
+        this.btn[row2][col2].setBackground(color);
     }
+
+    //
+    //
+    private void setColor(int row1, int col1, int row2, int col2) {
+        int blockNumber = this.brd.getCellAt(row1, col1);
+        Color color;
+        if (this.blockColors.containsKey(blockNumber)) {
+            color = this.blockColors.get(blockNumber);
+        } else {
+            Random random = new Random();
+            color = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+            this.blockColors.put(blockNumber, color);
+        }
+    
+        this.btn[row1][col1].setOpaque(true);
+        this.btn[row1][col1].setContentAreaFilled(true);
+        this.btn[row2][col2].setOpaque(true);
+        this.btn[row2][col2].setContentAreaFilled(true);
+        this.btn[row1][col1].setBackground(color);
+        this.btn[row2][col2].setBackground(color);
+    }
+    
 
     // MODIFIES: this
     // EFFECTS: find and return the button that is pressed

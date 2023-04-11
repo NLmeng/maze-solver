@@ -16,4 +16,4 @@ This project implements an A* algorithm for path traversal to solve a given boar
 
 - Alternatively, you can run the project manually with the following command:
   - `javac -cp "src:lib/json-20210307.jar" -d bin src/gui/model/*.java src/gui/persistence/*.java src gui/ui/*.java`
-  - `java -cp "bin:lib/json-20210307.jar" ui/Main`
+  - `java -cp "bin:lib/json-20210307.jar" gui/ui/Main`
