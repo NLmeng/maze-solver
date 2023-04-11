@@ -1,6 +1,9 @@
 # Board Game's Path Searching
 This project implements an A* algorithm for path traversal to solve a given board game. The A* algorithm, along with other data structures like graphs, is used to find the most efficient path in the game. By fine-tuning the heuristic function, the algorithm's performance can be improved, allowing for faster and more accurate pathfinding, about 200% time improvements with about the same accuracy.
 
+
+![Output sample](https://github.com/NLmeng/maze-solver/blob/master/demo.gif)
+
 ### Getting Started
 
 #### Prerequisites
