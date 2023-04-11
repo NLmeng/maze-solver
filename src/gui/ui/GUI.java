@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import org.json.JSONObject;
@@ -340,47 +341,57 @@ public class GUI extends JFrame implements ActionListener {
         return moves;
     }
     public void performMoves(List<String> moves) {
-        String[] txtData;
-        Map<String, Object> jsonData;
-        try {
-            txtData = readTxtFile("data/solver.txt");
-            jsonData = readJsonFile("data/solver.json");
-            for (String move : moves) {
-                char block = move.charAt(0);
-                char direction = move.charAt(1);
-                int steps = Character.getNumericValue(move.charAt(2));
-                this.blockInd =  translateBlockLetterToBNo(block, txtData, jsonData);
-                if (this.blockInd == 120) {
-                    this.blockInd = 0;
-                }
-                this.blockToMove = this.brd.getBlockAt(this.blockInd);
-                for (int i = 0; i < steps; i++) {
-                    switch (direction) {
-                        case 'L':
-                            // Move block left
-                            this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "l", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                            break;
-                        case 'U':
-                            // Move block up
-                            this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "u", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                            break;
-                        case 'D':
-                            this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "d", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                            // Move block down
-                            break;
-                        case 'R':
-                        this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "r", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                            // Move block right
-                            break;
-                        default:
-                            throw new IllegalStateException("Unexpected direction: " + direction);
+        new Thread(() -> {
+            String[] txtData;
+            Map<String, Object> jsonData;
+            try {
+                txtData = readTxtFile("data/solver.txt");
+                jsonData = readJsonFile("data/solver.json");
+                for (String move : moves) {
+                    char block = move.charAt(0);
+                    char direction = move.charAt(1);
+                    int steps = Character.getNumericValue(move.charAt(2));
+                    this.blockInd = translateBlockLetterToBNo(block, txtData, jsonData);
+                    if (this.blockInd == 120) {
+                        this.blockInd = 0;
+                    }
+                    this.blockToMove = this.brd.getBlockAt(this.blockInd);
+                    for (int i = 0; i < steps; i++) {
+                        SwingUtilities.invokeLater(() -> {
+                            switch (direction) {
+                                case 'L':
+                                    // Move block left
+                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "l", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                                    break;
+                                case 'U':
+                                    // Move block up
+                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "u", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                                    break;
+                                case 'D':
+                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "d", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                                    // Move block down
+                                    break;
+                                case 'R':
+                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "r", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                                    // Move block right
+                                    break;
+                                default:
+                                    throw new IllegalStateException("Unexpected direction: " + direction);
+                            }
+                        });
+                        try {
+                            Thread.sleep(500); // Add a 500ms delay between moves
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
+            } catch (IOException e) {
+                System.err.println("Error reading the txt or json file: " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.err.println("Error reading the txt or json file: " + e.getMessage());
-        }
+        }).start();
     }
+    
     public int translateBlockLetterToBNo(char letter, String[] txtData, Map<String, Object> jsonData) {
         int row = -1;
         int col = -1;
