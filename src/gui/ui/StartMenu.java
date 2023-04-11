@@ -6,6 +6,7 @@ import java.awt.event.*;
 
 public class StartMenu extends JFrame implements ActionListener {
     private JButton submitButton;
+    private JButton startButton;
     private JButton instructionButton;
     private JButton leveButton;
     private JTextField txt;
@@ -45,7 +46,7 @@ public class StartMenu extends JFrame implements ActionListener {
         this.getContentPane().setBackground(Color.gray);
 
         JLabel title = new JLabel("BlockSlider");
-        title.setBounds(this.fromLeft + 25, 0, 500, 100);
+        title.setBounds(this.fromLeft + 50, 0, 500, 100);
         title.setFont(new Font("Algerian", Font.BOLD, 50));
         title.setForeground(Color.cyan);
 
@@ -60,6 +61,10 @@ public class StartMenu extends JFrame implements ActionListener {
     // MODIFIES: this
     // EFFECTS: create and add submitButton, instructionButton, and loadButton
     private void addButtons() {
+        this.startButton = new JButton("Start");
+        this.startButton.addActionListener(this);
+        this.startButton.setBounds(this.fromLeft * 4, this.fromTop - 112, 100, 50);
+
         this.submitButton = new JButton("Submit");
         this.submitButton.addActionListener(this);
         this.submitButton.setBounds(this.fromLeft + this.txtW, this.fromTop, 75, 50);
@@ -76,6 +81,7 @@ public class StartMenu extends JFrame implements ActionListener {
         this.leveButton.addActionListener(this);
         this.leveButton.setBounds(this.fromLeft * 4, this.fromTop + 149, 100, 25);
 
+        this.add(this.startButton);
         this.add(this.submitButton);
         this.add(this.instructionButton);
         this.add(this.leveButton);
@@ -103,6 +109,9 @@ public class StartMenu extends JFrame implements ActionListener {
         } else if (e.getSource() == this.leveButton) {
             this.dispose();
             new LevelWindow();
+        } else if (e.getSource() == this.startButton) {
+            this.dispose();
+            new GUI(6);
         } else {
             this.dispose();
             new GUI("./data/savedBoard.json");
