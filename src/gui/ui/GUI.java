@@ -1,46 +1,25 @@
 package gui.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.awt.*;
+
+import java.awt.event.*;
+
+import java.io.*;
+
+import rushhour.*;
+import java.util.*;
 import java.util.Random;
+import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
-import org.json.JSONObject;
-
-import gui.model.Block;
-import gui.model.Board;
+import gui.model.*;
 import gui.model.Event;
-import gui.model.EventLog;
-import gui.model.Horiblock;
-import gui.model.Vertblock;
-import gui.persistence.JsonReader;
-import gui.persistence.JsonWriter;
+import gui.persistence.*;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import gui.persistence.*;
-import rushhour.*;
-import java.io.FileWriter;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.*;
+
 
 public class GUI extends JFrame implements ActionListener {
     private int size;
@@ -198,7 +177,8 @@ public class GUI extends JFrame implements ActionListener {
                     // b = new JButton(" ");
                     b = new JButton("");
                 } else if (ind == 120) {
-                    b = new JButton("x");
+                    // b = new JButton("x");
+                    b = new JButton("");
                 } else {
                     // b = new JButton(String.valueOf(ind));
                     b = new JButton("");
@@ -292,99 +272,44 @@ public class GUI extends JFrame implements ActionListener {
 
     //
     //
-    private void solve() {
+    private void saveBoard() {
         try {
             this.jsonWriterForSolve.open();
             this.jsonWriterForSolve.write(this.brd);
             this.jsonWriterForSolve.close();
             System.out.println("saved board!");
         } catch (FileNotFoundException e) {
-            // e.printStackTrace();
             System.out.println("failed to save board");
         }
-
-        String filePath = "data/solver.json";
-		String outFile = "data/solver.sol";
-
-        try {
-            String txtBoard = Converter.jsonToTxt(filePath);
-            System.out.println(txtBoard);
+    }
     
-            // Write the txtBoard to data/solver.txt
-            try (FileWriter writer = new FileWriter("data/solver.txt")) {
-                writer.write(txtBoard);
-                System.out.println("Successfully written to data/solver.txt");
-            } catch (IOException e) {
-                System.err.println("Error writing to data/solver.txt: " + e.getMessage());
-            }
-
-			
-			rushhour.Solver.solveFromFile("data/solver.txt", outFile);
-			new RushHour("data/solver.txt");
-
-            List<String> moves = readSolutionFile("data/solver.sol");
-            performMoves(moves);
-
+    private void solve() {
+        try {
+            this.saveBoard();
+            String jsonPath = "data/solver.json";
+            String txtPath = "data/solver.txt";
+            String solPath = "data/solver.sol";
+        
+            Translator.convertAndSaveTxtBoard(jsonPath, txtPath);
+        
+            rushhour.Solver.solveFromFile(txtPath, solPath);
+            new RushHour(txtPath);
+        
+            List<String> moves = Translator.readSolutionFile(solPath);
+            this.performMoves(moves);
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
         }
     }
-
-    public List<String> readSolutionFile(String filePath) throws IOException {
-        List<String> moves = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                moves.add(line);
-            }
-        }
-        return moves;
-    }
+    
     public void performMoves(List<String> moves) {
         new Thread(() -> {
-            String[] txtData;
-            Map<String, Object> jsonData;
             try {
-                txtData = readTxtFile("data/solver.txt");
-                jsonData = readJsonFile("data/solver.json");
+                String[] txtData = Translator.readTxtFile("data/solver.txt");
+                Map<String, Object> jsonData = Translator.readJsonFile("data/solver.json");
+    
                 for (String move : moves) {
-                    char block = move.charAt(0);
-                    char direction = move.charAt(1);
-                    int steps = Character.getNumericValue(move.charAt(2));
-                    this.blockInd = translateBlockLetterToBNo(block, txtData, jsonData);
-                    if (this.blockInd == 120) {
-                        this.blockInd = 0;
-                    }
-                    this.blockToMove = this.brd.getBlockAt(this.blockInd);
-                    for (int i = 0; i < steps; i++) {
-                        SwingUtilities.invokeLater(() -> {
-                            switch (direction) {
-                                case 'L':
-                                    // Move block left
-                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "l", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                                    break;
-                                case 'U':
-                                    // Move block up
-                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "u", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                                    break;
-                                case 'D':
-                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "d", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                                    // Move block down
-                                    break;
-                                case 'R':
-                                    this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "r", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
-                                    // Move block right
-                                    break;
-                                default:
-                                    throw new IllegalStateException("Unexpected direction: " + direction);
-                            }
-                        });
-                        try {
-                            Thread.sleep(500); // Add a 500ms delay between moves
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    this.performSingleMove(move, txtData, jsonData);
                 }
             } catch (IOException e) {
                 System.err.println("Error reading the txt or json file: " + e.getMessage());
@@ -392,71 +317,53 @@ public class GUI extends JFrame implements ActionListener {
         }).start();
     }
     
-    public int translateBlockLetterToBNo(char letter, String[] txtData, Map<String, Object> jsonData) {
-        int row = -1;
-        int col = -1;
+    private void performSingleMove(String move, String[] txtData, Map<String, Object> jsonData) {
+        char block = move.charAt(0);
+        char direction = move.charAt(1);
+        int steps = Character.getNumericValue(move.charAt(2));
+        this.blockInd = Translator.translateBlockLetterToBNo(block, txtData, jsonData);
     
-        // Find the position of the letter in txtData
-        for (int i = 0; i < txtData.length; i++) {
-            int index = txtData[i].indexOf(letter);
-            if (index != -1) {
-                row = i;
-                col = index;
-                break;
-            }
+        if (this.blockInd == 120) {
+            this.blockInd = 0;
         }
+        this.blockToMove = this.brd.getBlockAt(this.blockInd);
     
-        if (row == -1 || col == -1) {
-            return -1; // Letter not found
-        }
-    
-        // Find the corresponding bNo in jsonData
-        for (int keyValue = 0; keyValue < (int) jsonData.get("noBlocks"); keyValue++) {
-            String rowKey = "row" + keyValue;
-            String colKey = "col" + keyValue;
-            if (jsonData.containsKey(rowKey) && jsonData.containsKey(colKey)) {
-                int rowValue = (int) jsonData.get(rowKey);
-                int colValue = (int) jsonData.get(colKey);
-                if (rowValue == row && colValue == col) {
-                    String bNoKey = "bNo" + keyValue;
-                    if (jsonData.containsKey(bNoKey)) {
-                        return (int) jsonData.get(bNoKey);
-                    }
+        for (int i = 0; i < steps; i++) {
+            SwingUtilities.invokeLater(() -> {
+                switch (direction) {
+                    case 'L':
+                        this.moveBlock("l");
+                        break;
+                    case 'U':
+                        this.moveBlock("u");
+                        break;
+                    case 'D':
+                        this.moveBlock("d");
+                        break;
+                    case 'R':
+                        this.moveBlock("r");
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected direction: " + direction);
                 }
-            }
-        }
-    
-        return -1; // bNo not found
-    }
-    public String[] readTxtFile(String filePath) throws IOException {
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            return br.lines().toArray(String[]::new);
-        } catch (IOException e) {
-            throw new IOException("Error reading the txt file: " + e.getMessage());
+            });
+            this.sleepBetweenMoves();
         }
     }
-    public Map<String, Object> readJsonFile(String filePath) throws IOException {
-        String jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
-        JSONObject jsonObject = new JSONObject(jsonContent);
     
-        Map<String, Object> jsonData = new HashMap<>();
-        Iterator<String> keys = jsonObject.keys();
-    
-        while (keys.hasNext()) {
-            String key = keys.next();
-            Object value = jsonObject.get(key);
-    
-            if (value instanceof Integer) {
-                jsonData.put(key, jsonObject.getInt(key));
-            } else if (value instanceof Boolean) {
-                jsonData.put(key, jsonObject.getBoolean(key));
-            }
-        }
-    
-        return jsonData;
+    private void moveBlock(String direction) {
+        this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()],
+                direction, this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
     }
     
-
+    private void sleepBetweenMoves() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
     // EFFECTS: save the state of the game (blocks) to file
     // handles FileNotFoundException
     private void saveGame() {
@@ -633,7 +540,7 @@ public class GUI extends JFrame implements ActionListener {
     private void move(JButton jb, String dir, int row, int col) {
         int bn = this.blockToMove.getBlockNumber();
         if (bn == 120) {
-            jb.setText(String.valueOf((char) bn));
+            // jb.setText(String.valueOf((char) bn));
         } else {
             // jb.setText(String.valueOf(bn));
         }
@@ -702,8 +609,12 @@ public class GUI extends JFrame implements ActionListener {
         if (this.blockColors.containsKey(blockNumber)) {
             color = this.blockColors.get(blockNumber);
         } else {
-            Random random = new Random();
-            color = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+            if (blockNumber == 120) {
+                color = Color.BLACK;
+            } else {
+                Random random = new Random();
+                color = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+            }
             this.blockColors.put(blockNumber, color);
         }
     
