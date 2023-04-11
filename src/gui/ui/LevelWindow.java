@@ -1,8 +1,14 @@
 package gui.ui;
 
+import gui.persistence.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Random;
+import org.json.JSONObject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class LevelWindow extends JFrame implements ActionListener {
     private final int boxSize = 500;
@@ -10,6 +16,7 @@ public class LevelWindow extends JFrame implements ActionListener {
     private final int fromTop = 225;
     private final int width = 250;
     private final int height = 25;
+    private final int difficulty = 3;
     private JButton[] lvl;
 
     // MODIFIES: this
@@ -41,8 +48,8 @@ public class LevelWindow extends JFrame implements ActionListener {
     // MODIFIES: this
     // EFFECTS: create and add buttons
     private void addButtons() {
-        this.lvl = new JButton[5];
-        for (int i = 0; i < 5; i++) {
+        this.lvl = new JButton[this.difficulty];
+        for (int i = 0; i < this.difficulty; i++) {
             this.lvl[i] = new JButton("level" + (i + 1));
             this.lvl[i].addActionListener(this);
             this.lvl[i].setBounds(this.fromLeft * 2 + 10, this.fromTop - 125 + (50 * i), this.width, this.height);
@@ -53,11 +60,26 @@ public class LevelWindow extends JFrame implements ActionListener {
     // EFFECTS: load a pre-made game according to the level selected
     @Override
     public void actionPerformed(ActionEvent e) {
-        for (int i = 0; i < 5; i++) {
+        Random random = new Random();
+        for (int i = 0; i < this.difficulty; i++) {
             if (e.getSource() == this.lvl[i]) {
                 this.dispose();
-                // new GUI("./data/lvl" + (i + 1) + ".json");
-                new GUI("./data/lvlA/A00.json");
+                
+                // Calculate the level prefix based on the button clicked, randomly
+                int randomLevel = random.nextInt(3);
+                char levelPrefix = (char) ('A' + i); 
+    
+                String levelFileName = String.format("./data/lvl%c/%c%02d.txt", levelPrefix, levelPrefix, randomLevel);
+                String jsonFilePath = String.format("./data/lvl%c/%c%02d.json", levelPrefix, levelPrefix, randomLevel);
+                try {
+                    JSONObject jsonObject = TxtToJsonConverter.textToJSON(levelFileName);
+
+                    Files.writeString(Paths.get(jsonFilePath), jsonObject.toString());
+                } catch (IOException err) {
+                    err.printStackTrace();
+                }
+
+                new GUI(jsonFilePath);
             }
         }
     }

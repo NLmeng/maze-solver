@@ -55,7 +55,6 @@ public class TxtToJsonConverter {
                     int nextCol = col + (isVertical ? 0 : 1);
                     while (nextRow < size && nextCol < size && grid[nextRow][nextCol] == current) {
                         grid[nextRow][nextCol] = '.';
-                        length++;
                         nextRow += isVertical ? 1 : 0;
                         nextCol += isVertical ? 0 : 1;
                     }
