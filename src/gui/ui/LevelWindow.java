@@ -72,7 +72,7 @@ public class LevelWindow extends JFrame implements ActionListener {
                 String levelFileName = String.format("./data/lvl%c/%c%02d.txt", levelPrefix, levelPrefix, randomLevel);
                 String jsonFilePath = String.format("./data/lvl%c/%c%02d.json", levelPrefix, levelPrefix, randomLevel);
                 try {
-                    JSONObject jsonObject = TxtToJsonConverter.textToJSON(levelFileName);
+                    JSONObject jsonObject = Converter.textToJSON(levelFileName);
 
                     Files.writeString(Paths.get(jsonFilePath), jsonObject.toString());
                 } catch (IOException err) {

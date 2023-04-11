@@ -1,0 +1,6 @@
+AABCDE
+..BCDE
+...F.G
+XXHF.G
+IJH.KK
+IJLL..

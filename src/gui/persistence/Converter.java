@@ -7,10 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 import java.nio.file.Path;
 
-public class TxtToJsonConverter {
+public class Converter {
 
     public static JSONObject textToJSON(String filePath) throws IOException {
         Path path = Paths.get(filePath);
@@ -74,6 +73,58 @@ public class TxtToJsonConverter {
 
         jsonObject.put("noBlocks", blockCounter);
         return jsonObject;
+    }  
+
+    public static String jsonToTxt(String filePath) throws IOException {
+        String jsonString = readFile(filePath);
+        JSONObject jsonObject = new JSONObject(jsonString);
+        int size = jsonObject.getInt("size");
+        char[][] board = new char[size][size];
+
+        // Initialize the board with dots
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                board[i][j] = '.';
+            }
+        }
+
+        int noBlocks = jsonObject.getInt("noBlocks");
+        for (int i = 0; i < noBlocks; i++) {
+            int row = jsonObject.getInt("row" + i);
+            int col = jsonObject.getInt("col" + i);
+            boolean isV = jsonObject.getBoolean("isV" + i);
+            char blockNo = (char) jsonObject.getInt("bNo" + i);
+            if (blockNo == 120) {
+                blockNo = 'X';
+            } else {
+                blockNo = (char) ('A' + (blockNo - 1));
+            }
+
+            board[row][col] = blockNo;
+            if (isV) {
+                board[row + 1][col] = blockNo;
+            } else {
+                board[row][col + 1] = blockNo;
+            }
+        }
+
+        // Convert the board to a single string
+        StringBuilder txtBoard = new StringBuilder();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                txtBoard.append(board[i][j]);
+            }
+            if (i < size - 1) {
+                txtBoard.append("\n");
+            }
+        }
+
+        return txtBoard.toString();
+    }
+
+    // Reads a file and returns its content as a string
+    private static String readFile(String filePath) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
     }
 
 }

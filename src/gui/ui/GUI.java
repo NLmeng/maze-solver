@@ -31,7 +31,13 @@ import gui.persistence.JsonWriter;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import java.util.HashMap;
-
+import gui.persistence.*;
+import rushhour.*;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUI extends JFrame implements ActionListener {
     private int size;
@@ -51,10 +57,13 @@ public class GUI extends JFrame implements ActionListener {
     private JButton btnforRemove;
     private JButton btnforSave;
     private JButton btnforLoad;
+    private JButton btnforSolve;
     private Board brd;
     // private static final String JSON_STORE = "./data/savedBoard.json";
     private String jsonName = "./data/savedBoard.json";
+    private String jsonNameForSolve = "./data/solver.json";
     private JsonWriter jsonWriter;
+    private JsonWriter jsonWriterForSolve;
     private JsonReader jsonReader;
     private HashMap<Integer, Color> blockColors = new HashMap<>();
 
@@ -111,6 +120,7 @@ public class GUI extends JFrame implements ActionListener {
         this.btn = new JButton[120][120];
         this.jsonWriter = new JsonWriter(this.jsonName);
         this.jsonReader = new JsonReader(this.jsonName);
+        this.jsonWriterForSolve = new JsonWriter(this.jsonNameForSolve);
 
         this.createTitle();
         this.createBoard();
@@ -163,12 +173,15 @@ public class GUI extends JFrame implements ActionListener {
         this.btnforSave.addActionListener(this);
         this.btnforLoad = new JButton("Load");
         this.btnforLoad.addActionListener(this);
+        this.btnforSolve = new JButton("Solve");
+        this.btnforSolve.addActionListener(this);
 
         buttonPanel.add(this.btnforNewVertical);
         buttonPanel.add(this.btnforNewHorizontal);
         buttonPanel.add(this.btnforSave);
         buttonPanel.add(this.btnforLoad);
         buttonPanel.add(this.btnforRemove);
+        buttonPanel.add(this.btnforSolve);
         this.add(buttonPanel, BorderLayout.PAGE_END);
     }
 
@@ -263,11 +276,93 @@ public class GUI extends JFrame implements ActionListener {
             return;
         }
 
+        if (e.getSource() == this.btnforSolve) {
+            this.solve();
+            return;
+        }
+
         JButton clicked = this.findButton(e);
         byte curr = this.brd.getCellAt(this.currRow, this.currColumn);
 
         this.tryActions(clicked, curr);
     }
+
+    //
+    //
+    private void solve() {
+        try {
+            this.jsonWriterForSolve.open();
+            this.jsonWriterForSolve.write(this.brd);
+            this.jsonWriterForSolve.close();
+            System.out.println("saved board!");
+        } catch (FileNotFoundException e) {
+            // e.printStackTrace();
+            System.out.println("failed to save board");
+        }
+        String filePath = "data/solver.json";
+		String outFile = "data/solver.sol";
+
+        try {
+            String txtBoard = Converter.jsonToTxt(filePath);
+            System.out.println(txtBoard);
+    
+            // Write the txtBoard to data/solver.txt
+            try (FileWriter writer = new FileWriter("data/solver.txt")) {
+                writer.write(txtBoard);
+                System.out.println("Successfully written to data/solver.txt");
+            } catch (IOException e) {
+                System.err.println("Error writing to data/solver.txt: " + e.getMessage());
+            }
+
+			
+			rushhour.Solver.solveFromFile("data/solver.txt", outFile);
+			new RushHour("data/solver.txt");
+
+            // List<String> moves = readSolutionFile("data/solver.sol");
+            // performMoves(moves);
+
+        } catch (Exception e) {
+            System.err.println("Error reading the JSON file: " + e.getMessage());
+        }
+    }
+
+    public List<String> readSolutionFile(String filePath) throws IOException {
+        List<String> moves = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                moves.add(line);
+            }
+        }
+        return moves;
+    }
+    public void performMoves(List<String> moves) {
+        for (String move : moves) {
+            char block = move.charAt(0);
+            char direction = move.charAt(1);
+            int steps = Character.getNumericValue(move.charAt(2));
+    
+            for (int i = 0; i < steps; i++) {
+                switch (direction) {
+                    case 'L':
+                        // Move block left
+                        break;
+                    case 'U':
+                        // Move block up
+                        break;
+                    case 'D':
+                        // Move block down
+                        break;
+                    case 'R':
+                        // Move block right
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected direction: " + direction);
+                }
+            }
+        }
+    }
+    
 
     // EFFECTS: save the state of the game (blocks) to file
     // handles FileNotFoundException

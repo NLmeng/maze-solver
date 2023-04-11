@@ -77,14 +77,14 @@ public class StartMenu extends JFrame implements ActionListener {
         loadButton.addActionListener(this);
         loadButton.setBounds(this.fromLeft * 4, this.fromTop + 112, 100, 25);
 
-        this.leveButton = new JButton("level");
-        this.leveButton.addActionListener(this);
-        this.leveButton.setBounds(this.fromLeft * 4, this.fromTop + 149, 100, 25);
+        // this.leveButton = new JButton("level");
+        // this.leveButton.addActionListener(this);
+        // this.leveButton.setBounds(this.fromLeft * 4, this.fromTop + 149, 100, 25);
 
         this.add(this.startButton);
         this.add(this.submitButton);
         this.add(this.instructionButton);
-        this.add(this.leveButton);
+        // this.add(this.leveButton);
         this.add(loadButton);
     }
 
@@ -106,12 +106,16 @@ public class StartMenu extends JFrame implements ActionListener {
         } else if (e.getSource() == this.instructionButton) {
             this.dispose();
             new InstructionWindow();
-        } else if (e.getSource() == this.leveButton) {
+        } 
+        // else if (e.getSource() == this.leveButton) {
+        //     this.dispose();
+        //     new LevelWindow();
+        // } 
+        else if (e.getSource() == this.startButton) {
+            // this.dispose();
+            // new GUI(6);
             this.dispose();
             new LevelWindow();
-        } else if (e.getSource() == this.startButton) {
-            this.dispose();
-            new GUI(6);
         } else {
             this.dispose();
             new GUI("./data/savedBoard.json");
