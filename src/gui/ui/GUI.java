@@ -11,6 +11,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Random;
 
 import javax.swing.JButton;
@@ -18,6 +20,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
+
+import org.json.JSONObject;
 
 import gui.model.Block;
 import gui.model.Board;
@@ -30,14 +34,12 @@ import gui.persistence.JsonWriter;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import java.util.HashMap;
 import gui.persistence.*;
 import rushhour.*;
 import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GUI extends JFrame implements ActionListener {
     private int size;
@@ -299,6 +301,7 @@ public class GUI extends JFrame implements ActionListener {
             // e.printStackTrace();
             System.out.println("failed to save board");
         }
+
         String filePath = "data/solver.json";
 		String outFile = "data/solver.sol";
 
@@ -318,11 +321,11 @@ public class GUI extends JFrame implements ActionListener {
 			rushhour.Solver.solveFromFile("data/solver.txt", outFile);
 			new RushHour("data/solver.txt");
 
-            // List<String> moves = readSolutionFile("data/solver.sol");
-            // performMoves(moves);
+            List<String> moves = readSolutionFile("data/solver.sol");
+            performMoves(moves);
 
         } catch (Exception e) {
-            System.err.println("Error reading the JSON file: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
         }
     }
 
@@ -337,30 +340,109 @@ public class GUI extends JFrame implements ActionListener {
         return moves;
     }
     public void performMoves(List<String> moves) {
-        for (String move : moves) {
-            char block = move.charAt(0);
-            char direction = move.charAt(1);
-            int steps = Character.getNumericValue(move.charAt(2));
+        String[] txtData;
+        Map<String, Object> jsonData;
+        try {
+            txtData = readTxtFile("data/solver.txt");
+            jsonData = readJsonFile("data/solver.json");
+            for (String move : moves) {
+                char block = move.charAt(0);
+                char direction = move.charAt(1);
+                int steps = Character.getNumericValue(move.charAt(2));
+                this.blockInd =  translateBlockLetterToBNo(block, txtData, jsonData);
+                if (this.blockInd == 120) {
+                    this.blockInd = 0;
+                }
+                this.blockToMove = this.brd.getBlockAt(this.blockInd);
+                for (int i = 0; i < steps; i++) {
+                    switch (direction) {
+                        case 'L':
+                            // Move block left
+                            this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "l", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                            break;
+                        case 'U':
+                            // Move block up
+                            this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "u", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                            break;
+                        case 'D':
+                            this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "d", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                            // Move block down
+                            break;
+                        case 'R':
+                        this.move(this.btn[this.blockToMove.getRowNumber()][this.blockToMove.getColumnNumber()], "r", this.blockToMove.getRowNumber(), this.blockToMove.getColumnNumber());
+                            // Move block right
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected direction: " + direction);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading the txt or json file: " + e.getMessage());
+        }
+    }
+    public int translateBlockLetterToBNo(char letter, String[] txtData, Map<String, Object> jsonData) {
+        int row = -1;
+        int col = -1;
     
-            for (int i = 0; i < steps; i++) {
-                switch (direction) {
-                    case 'L':
-                        // Move block left
-                        break;
-                    case 'U':
-                        // Move block up
-                        break;
-                    case 'D':
-                        // Move block down
-                        break;
-                    case 'R':
-                        // Move block right
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected direction: " + direction);
+        // Find the position of the letter in txtData
+        for (int i = 0; i < txtData.length; i++) {
+            int index = txtData[i].indexOf(letter);
+            if (index != -1) {
+                row = i;
+                col = index;
+                break;
+            }
+        }
+    
+        if (row == -1 || col == -1) {
+            return -1; // Letter not found
+        }
+    
+        // Find the corresponding bNo in jsonData
+        for (int keyValue = 0; keyValue < (int) jsonData.get("noBlocks"); keyValue++) {
+            String rowKey = "row" + keyValue;
+            String colKey = "col" + keyValue;
+            if (jsonData.containsKey(rowKey) && jsonData.containsKey(colKey)) {
+                int rowValue = (int) jsonData.get(rowKey);
+                int colValue = (int) jsonData.get(colKey);
+                if (rowValue == row && colValue == col) {
+                    String bNoKey = "bNo" + keyValue;
+                    if (jsonData.containsKey(bNoKey)) {
+                        return (int) jsonData.get(bNoKey);
+                    }
                 }
             }
         }
+    
+        return -1; // bNo not found
+    }
+    public String[] readTxtFile(String filePath) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            return br.lines().toArray(String[]::new);
+        } catch (IOException e) {
+            throw new IOException("Error reading the txt file: " + e.getMessage());
+        }
+    }
+    public Map<String, Object> readJsonFile(String filePath) throws IOException {
+        String jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+        JSONObject jsonObject = new JSONObject(jsonContent);
+    
+        Map<String, Object> jsonData = new HashMap<>();
+        Iterator<String> keys = jsonObject.keys();
+    
+        while (keys.hasNext()) {
+            String key = keys.next();
+            Object value = jsonObject.get(key);
+    
+            if (value instanceof Integer) {
+                jsonData.put(key, jsonObject.getInt(key));
+            } else if (value instanceof Boolean) {
+                jsonData.put(key, jsonObject.getBoolean(key));
+            }
+        }
+    
+        return jsonData;
     }
     
 
